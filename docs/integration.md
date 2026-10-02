@@ -1,4 +1,4 @@
-﻿# Android integration guide
+# Android integration guide
 
 ## 1. Add the private registry
 

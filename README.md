@@ -1,4 +1,4 @@
-﻿# twyn-sdk-android â€” integration sample
+# twyn-sdk-android â€” integration sample
 
 > Public integration sample for the **Twyn Android SDK** (T4FastID / Twyn PAAS).
 > This repository contains **no proprietary logic** â€” it shows how to integrate the
