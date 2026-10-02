@@ -22,6 +22,9 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # Avoid the removed "tools" package (breaks on current runners).
+          packages: "platform-tools"
 
       # Pulls the private SDK binary from GitHub Packages.
       # Requires repo secrets: TWYN_MAVEN_USER / TWYN_MAVEN_TOKEN (read:packages).
