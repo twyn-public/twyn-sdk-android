@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -26,10 +26,21 @@ jobs:
           # Avoid the removed "tools" package (breaks on current runners).
           packages: "platform-tools"
 
-      # Pulls the private SDK binary from GitHub Packages.
-      # Requires repo secrets: TWYN_MAVEN_USER / TWYN_MAVEN_TOKEN (read:packages).
+      # Preferred: a dedicated GitHub App installed on twyn-internal with
+      # Packages: read. Set the repo variable TWYN_APP_ID and the secret
+      # TWYN_APP_PRIVATE_KEY to enable it. See docs/registry-auth.md.
+      - name: Mint registry token (GitHub App)
+        id: app
+        if: ${{ vars.TWYN_APP_ID != '' }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.TWYN_APP_ID }}
+          private-key: ${{ secrets.TWYN_APP_PRIVATE_KEY }}
+          owner: twyn-internal
+
+      # Fallback: a fine-grained PAT in the secret TWYN_MAVEN_TOKEN (read:packages).
       - name: Build sample
         env:
-          TWYN_MAVEN_USER: ${{ secrets.TWYN_MAVEN_USER }}
-          TWYN_MAVEN_TOKEN: ${{ secrets.TWYN_MAVEN_TOKEN }}
+          TWYN_MAVEN_USER: ${{ steps.app.outputs.token != '' && 'x-access-token' || 'x-access-token' }}
+          TWYN_MAVEN_TOKEN: ${{ steps.app.outputs.token || secrets.TWYN_MAVEN_TOKEN }}
         run: ./gradlew :sample:assembleDebug --no-daemon
