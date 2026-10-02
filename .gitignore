@@ -18,8 +18,8 @@ captures/
 *.hprof
 .DS_Store
 
-# Secrets — never commit
-gradle.properties
-!gradle.properties.example
+# Secrets — never commit (use env vars / CI secrets for twynUser/twynToken)
+gradle.properties.bak
+secrets.properties
 *.keystore
 *.jks
