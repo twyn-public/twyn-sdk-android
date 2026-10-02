@@ -1,19 +1,24 @@
-# Android integration guide
+# Android integration guide — Twyn SDK
 
-## 1. Add the private registry
+> Goal: get the SDK running in **your** app in ~10 minutes.
+> Copy the snippets, replace the placeholders, done.
 
-The SDK is published to a **private** GitHub Packages Maven registry. You need a
-GitHub account with access to the `twyn` org and a personal access token (classic)
-with the `read:packages` scope.
+---
 
-`settings.gradle.kts`:
+## 1. Get access to the SDK
 
+The SDK binary is hosted in a **private** Maven registry.
+
+1. Ask Twyn for a **GitHub token** with the `read:packages` scope (or use your own
+   account if it has access to the `twyn-internal` org).
+2. Add the registry + credentials:
+
+**`settings.gradle.kts`**
 ```kotlin
 dependencyResolutionManagement {
     repositories {
         google(); mavenCentral()
         maven {
-            name = "TwynSdkDist"
             url = uri("https://maven.pkg.github.com/twyn-internal/twyn-android-sdk")
             credentials {
                 username = providers.gradleProperty("twynUser").orNull
@@ -24,24 +29,33 @@ dependencyResolutionManagement {
 }
 ```
 
-`gradle.properties` (git-ignored):
-
+**`gradle.properties`** (do **not** commit this file)
 ```properties
 twynUser=your-github-user
-twynToken=ghp_xxx
+twynToken=ghp_xxxxxxxxxxxxxxxxxxxx
 ```
+
+> The registry is **private** → a token is required to download the SDK.
 
 ## 2. Add the dependency
 
+**`app/build.gradle.kts`**
 ```kotlin
 dependencies {
-    implementation("com.t4isb:t4fastid:1.0.0")
+    implementation("com.t4isb:t4fastid:1.0.7")
 }
 ```
 
-## 3. Permissions
+## 3. Theme (one line, required)
 
-The SDK needs camera, network and (optionally) location:
+The SDK UI uses Material components. Set a **Material Components** theme on your
+`application`:
+
+```xml
+<application android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" ...>
+```
+
+## 4. Permissions
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -51,42 +65,29 @@ The SDK needs camera, network and (optionally) location:
 <uses-feature android:name="android.hardware.camera.front" android:required="true" />
 ```
 
-## 3.1 Theme (required)
-
-The SDK UI uses `com.google.android.material.button.MaterialButton`, so the host
-app's `application` must use a **Material Components** theme:
-
-```xml
-<application android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" ...>
-```
-
-An AppCompat-only theme causes `InflateException: Error inflating class
-com.google.android.material.button.MaterialButton`.
-
-## 4. Register listeners
-
-The listeners live on the SDK's companion object and are invoked while the SDK
-activity is in the foreground:
-
-```kotlin
-T4FastID.setEnrListener(this)         // EnrollListener
-T4FastID.setSDKStatusListener(this)   // SDKStatusListener
-T4FastID.setEnrBackendListener(this)  // BackendTransactionListener (optional)
-```
-
 ## 5. Launch the SDK
 
 ```kotlin
-val intent = T4FastID.createIntent(this, sdkKey, personId, canal, env).apply {
-    putExtra("language", "en")                 // "pt" | "en"
-    putExtra("requestSteps", arrayOf("T4_FACE")) // e.g. T4_FACE, T4_FINGER, T4_DOCUMENT
-    putExtra("iBeta", true)                    // raw liveness result, no retry dialog
-    // optional: putExtra("tcn", "..."); putExtra("tot", "...")
+// 1) Register listeners once (they live on the SDK's companion object).
+T4FastID.setEnrListener(this)          // EnrollListener
+T4FastID.setSDKStatusListener(this)    // SDKStatusListener
+
+// 2) Build the launch Intent + optional extras.
+val intent = T4FastID.createIntent(
+    this,
+    /* sdkKey   */ "YOUR-SDK-KEY",     // provided by Twyn (optional for dev)
+    /* personId */ "12345678900",      // the identity being enrolled
+    /* canal    */ "TWYN",             // channel
+    /* env      */ "dev",              // "dev" or "prod"
+).apply {
+    putExtra("language", "en")                    // "pt" | "en"
+    putExtra("requestSteps", arrayOf("T4_FACE"))  // T4_FACE, T4_FINGER, T4_DOCUMENT
+    putExtra("iBeta", true)                        // return the raw result, no retry dialog
 }
+
+// 3) Start. Results arrive through the listeners.
 startActivity(intent)
 ```
-
-`env` accepts `"dev"` or `"prod"`.
 
 ## 6. Handle the result
 
@@ -102,33 +103,67 @@ override fun onEnrollFaceError(error: EnrollFaceError?) {
 }
 ```
 
-> **Security:** the final decision (APPROVED / REJECTED / CHALLENGE) is made
-> **server-side**, not from `livenessStatus`. Treat the SDK callback as the capture
-> result and read the authoritative decision from your backend / the audit API.
+> ⚠️ **The final decision is server-side.** `livenessStatus` is the *capture* result.
+> The authoritative **APPROVED / CHALLENGE / REJECTED** comes from your backend
+> (the audit API). See `README.md` → *Result dialog*.
 
-## 7. Device integrity (optional)
-
-The SDK ships a RASP layer that scans the device (root / Frida / hooks / camera
-pipeline) and submits a report to the Sentinel server:
+## 7. Device integrity (Sentinel) — optional but recommended
 
 ```kotlin
 SentinelIntegrator.initAsync(
     applicationContext,
-    "https://<your-sentinel-host>",
+    "https://your-sentinel.example.com",   // ← your Sentinel host
     allowCleartext = false,
 )
 SentinelIntegrator.scanAndSubmit(this, deepScan = false)
 ```
 
-The verdict flows into the transaction (`extend.sentinel`) and the gateway applies
-`SENTINEL_BLOCK` / `SENTINEL_REVIEW` accordingly.
+The verdict flows into the transaction and the gateway applies `SENTINEL_BLOCK` /
+`SENTINEL_REVIEW`.
 
 ## 8. R8 / ProGuard
 
-Keep the SDK entry points. The SDK ships consumer rules; if you build the AAR
-yourself, add:
+The SDK ships consumer rules. If you build the AAR yourself, add:
 
 ```proguard
 -keep class com.t4isb.t4fastid.** { *; }
 -keepclassmembers class com.t4isb.t4fastid.** { *; }
 ```
+
+---
+
+## Options reference
+
+| Extra / parameter | Values | Meaning |
+|---|---|---|
+| `sdkKey` | string | App key provided by Twyn (optional in dev) |
+| `personId` | string | The identity being enrolled |
+| `canal` | string | Channel (default `TWYN`) |
+| `env` | `dev` / `prod` | Environment |
+| `language` | `pt` / `en` | SDK UI language |
+| `requestSteps` | `T4_FACE`, `T4_FINGER`, `T4_DOCUMENT` | Which captures to run |
+| `iBeta` | `true` / `false` | Return the raw liveness result without a retry dialog |
+| `tcn` | string | Pre-set transaction token (optional) |
+| `tot` | `ENR` / `VER` | Transaction type (optional) |
+
+## Result dialog (what the user sees)
+
+The sample reads the decision from the **audit API** and shows a dialog:
+
+| Decision | Dialog | Meaning |
+|---|---|---|
+| `APPROVED` | green ✓ APROVADO | transaction authorized |
+| `REJECTED` | red ✕ REPROVADO | blocked (spoof, root, etc.) |
+| `CHALLENGE` | amber ! EM ANÁLISE | needs review |
+
+with **liveness**, **risk**, **Sentinel** verdict and the **reason codes**.
+
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `Could not resolve com.t4isb:t4fastid` | token missing/invalid → check `twynUser`/`twynToken` |
+| `InflateException: MaterialButton` | set a Material Components theme (§3) |
+| `NoClassDefFoundError: com.sentinel.sdk.Sentinel` | the AAR is older than 1.0.7 → bump the version |
+| SDK opens but "Error While Getting Required Data" | your app package isn't allowed on the gateway → ask Twyn to register it |
+| Dialog shows "INDEFINIDA" | the *Gateway base URL* field is empty or wrong |

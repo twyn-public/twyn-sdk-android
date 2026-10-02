@@ -146,7 +146,7 @@ class DemoLauncherActivity : AppCompatActivity(),
             Toast.makeText(this, "Person ID é obrigatório", Toast.LENGTH_SHORT).show()
             return
         }
-        val canal = inCanal.text.toString().trim().ifEmpty { "SICTM" }
+        val canal = inCanal.text.toString().trim().ifEmpty { "TWYN" }
         val env = spEnv.selectedItem.toString()
         val language = spLang.selectedItem.toString()
         val sdkKey = inSdkKey.text.toString().trim()

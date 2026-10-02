@@ -59,7 +59,7 @@
         <EditText
             android:id="@+id/inCanal"
             style="@style/DemoInput"
-            android:text="SICTM"
+            android:text="TWYN"
             android:inputType="text" />
 
         <TextView style="@style/DemoLabel" android:text="Env" />
