@@ -63,14 +63,21 @@ class DemoLauncherActivity : AppCompatActivity(),
     private lateinit var inTot: EditText
     private lateinit var spEnv: Spinner
     private lateinit var spLang: Spinner
+    private lateinit var inGatewayUrl: EditText
+    private lateinit var inSentinelUrl: EditText
 
     private lateinit var txtLog: TextView
     private lateinit var lblResult: TextView
     private lateinit var imgFace: ImageView
     private lateinit var resultCard: LinearLayout
 
-    // Endpoint de auditoria do gateway (mesma origem que o SDK usa: ibeta-dev-bixelab.twyn.me).
-    private val auditBase = "https://ibeta-dev-bixelab.twyn.me"
+    // Endpoints are configured in the form (see the "Endpoints" section). Placeholders by
+    // default — set them to YOUR deployment. The SDK's own liveness transport is baked into
+    // the SDK binary; these are only for the audit read + the Sentinel scan.
+    private fun gatewayBase(): String =
+        inGatewayUrl.text.toString().trim().trimEnd('/').ifEmpty { "https://your-gateway.example.com" }
+    private fun sentinelBase(): String =
+        inSentinelUrl.text.toString().trim().trimEnd('/').ifEmpty { "https://your-sentinel.example.com" }
     // Marca-d'água da última decisão existente ANTES do liveness. Usada para esperar a decisão
     // NOVA desta sessão (evita mostrar a decisão de uma transação anterior).
     @Volatile private var baselineDecisionId: String? = null
@@ -92,6 +99,8 @@ class DemoLauncherActivity : AppCompatActivity(),
         inTot = findViewById(R.id.inTot)
         spEnv = findViewById(R.id.spEnv)
         spLang = findViewById(R.id.spLang)
+        inGatewayUrl = findViewById(R.id.inGatewayUrl)
+        inSentinelUrl = findViewById(R.id.inSentinelUrl)
         txtLog = findViewById(R.id.txtLog)
         lblResult = findViewById(R.id.lblResult)
         imgFace = findViewById(R.id.imgFace)
@@ -122,7 +131,7 @@ class DemoLauncherActivity : AppCompatActivity(),
         // GlobalVars.sentinelReport e o liveness também anexa no extend. Init e scan em
         // background (não travam a tela).
         try {
-            val sentinelUrl = "https://aura-dash-dev.twyn.me"
+            val sentinelUrl = sentinelBase()
             com.t4isb.t4fastid.helpers.SentinelIntegrator.initAsync(applicationContext, sentinelUrl, allowCleartext = false)
             com.t4isb.t4fastid.helpers.SentinelIntegrator.scanAndSubmit(this, deepScan = false)
             log("→ Sentinel scan disparado (device integrity)")
@@ -317,7 +326,7 @@ class DemoLauncherActivity : AppCompatActivity(),
     }
 
     private fun fetchLatestDecision(): JSONObject? {
-        val conn = URL("$auditBase/api/audit/decisions?limit=1").openConnection() as HttpURLConnection
+        val conn = URL("${gatewayBase()}/api/audit/decisions?limit=1").openConnection() as HttpURLConnection
         try {
             conn.connectTimeout = 6000
             conn.readTimeout = 8000

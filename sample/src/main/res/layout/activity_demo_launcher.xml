@@ -28,6 +28,23 @@
             android:textSize="12sp"
             android:textColor="#666666" />
 
+        <!-- ==== Environment endpoints (configure for YOUR deployment) ==== -->
+        <TextView style="@style/DemoSection" android:text="Endpoints" />
+
+        <TextView style="@style/DemoLabel" android:text="Gateway base URL (audit / decision)" />
+        <EditText
+            android:id="@+id/inGatewayUrl"
+            style="@style/DemoInput"
+            android:hint="https://your-gateway.example.com"
+            android:inputType="textUri" />
+
+        <TextView style="@style/DemoLabel" android:text="Sentinel base URL (device integrity)" />
+        <EditText
+            android:id="@+id/inSentinelUrl"
+            style="@style/DemoInput"
+            android:hint="https://your-sentinel.example.com"
+            android:inputType="textUri" />
+
         <!-- ==== Parameters ==== -->
         <TextView style="@style/DemoSection" android:text="Parâmetros" />
 
