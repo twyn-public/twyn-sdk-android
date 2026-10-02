@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.T4FastIDDemo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#0FB5B3</item>
+        <item name="colorPrimaryVariant">#0A9997</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">#6BCFD1</item>
+        <item name="android:statusBarColor">#0A9997</item>
+    </style>
+</resources>

@@ -8,7 +8,8 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.twyn.sample"
+        // Must match an allowed package pattern on the gateway (com.t4isb.*).
+        applicationId = "com.t4isb.sample"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

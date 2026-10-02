@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#F5F7F7">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="T4FastID — Test Client"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#0A9997" />
+
+        <TextView
+            android:id="@+id/lblSdkVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="SDK: -"
+            android:textSize="12sp"
+            android:textColor="#666666" />
+
+        <!-- ==== Parameters ==== -->
+        <TextView style="@style/DemoSection" android:text="Parâmetros" />
+
+        <TextView style="@style/DemoLabel" android:text="Person ID *" />
+        <EditText
+            android:id="@+id/inPersonId"
+            style="@style/DemoInput"
+            android:hint="ex: 35090094870"
+            android:inputType="text" />
+
+        <TextView style="@style/DemoLabel" android:text="Canal" />
+        <EditText
+            android:id="@+id/inCanal"
+            style="@style/DemoInput"
+            android:text="SICTM"
+            android:inputType="text" />
+
+        <TextView style="@style/DemoLabel" android:text="Env" />
+        <Spinner
+            android:id="@+id/spEnv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
+        <TextView style="@style/DemoLabel" android:text="Idioma" />
+        <Spinner
+            android:id="@+id/spLang"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp" />
+
+        <TextView style="@style/DemoLabel" android:text="Request steps (separados por vírgula)" />
+        <EditText
+            android:id="@+id/inSteps"
+            style="@style/DemoInput"
+            android:text="T4_FACE"
+            android:inputType="text" />
+
+        <TextView style="@style/DemoLabel" android:text="SDK Key (opcional)" />
+        <EditText
+            android:id="@+id/inSdkKey"
+            style="@style/DemoInput"
+            android:hint="opcional"
+            android:inputType="text" />
+
+        <TextView style="@style/DemoLabel" android:text="TCN (opcional)" />
+        <EditText
+            android:id="@+id/inTcn"
+            style="@style/DemoInput"
+            android:hint="opcional"
+            android:inputType="text" />
+
+        <TextView style="@style/DemoLabel" android:text="TOT (opcional, ex: ENR / VER)" />
+        <EditText
+            android:id="@+id/inTot"
+            style="@style/DemoInput"
+            android:text="ENR"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Iniciar Liveness (Face)"
+            android:textAllCaps="false"
+            android:textStyle="bold"
+            android:backgroundTint="#0FB5B3"
+            android:textColor="#FFFFFF" />
+
+        <!-- ==== Result card ==== -->
+        <LinearLayout
+            android:id="@+id/resultCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="18dp"
+            android:padding="14dp"
+            android:visibility="gone"
+            android:background="#FFFFFF">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Último resultado"
+                android:textStyle="bold"
+                android:textColor="#0A9997" />
+
+            <TextView
+                android:id="@+id/lblResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textSize="13sp"
+                android:textColor="#222222" />
+
+            <ImageView
+                android:id="@+id/imgFace"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="10dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="cropped face" />
+        </LinearLayout>
+
+        <!-- ==== Event log ==== -->
+        <TextView style="@style/DemoSection" android:text="Log de callbacks" />
+
+        <Button
+            android:id="@+id/btnClearLog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limpar log"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            android:backgroundTint="#B0BEC5"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/txtLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:padding="12dp"
+            android:background="#0D1B1B"
+            android:fontFamily="monospace"
+            android:textSize="12sp"
+            android:textColor="#8FE9E7"
+            android:textIsSelectable="true"
+            android:text="" />
+
+    </LinearLayout>
+</ScrollView>
