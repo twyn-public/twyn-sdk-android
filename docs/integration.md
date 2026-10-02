@@ -14,7 +14,7 @@ dependencyResolutionManagement {
         google(); mavenCentral()
         maven {
             name = "TwynSdkDist"
-            url = uri("https://maven.pkg.github.com/twyn-internal/twyn-sdk-dist")
+            url = uri("https://maven.pkg.github.com/twyn-internal/twyn-android-sdk")
             credentials {
                 username = providers.gradleProperty("twynUser").orNull
                 password = providers.gradleProperty("twynToken").orNull

@@ -14,7 +14,7 @@ dependencyResolutionManagement {
         // Private Twyn SDK registry (needs a GitHub token with read:packages).
         maven {
             name = "TwynSdkDist"
-            url = uri("https://maven.pkg.github.com/twyn-internal/twyn-sdk-dist")
+            url = uri("https://maven.pkg.github.com/twyn-internal/twyn-android-sdk")
             credentials {
                 username = providers.gradleProperty("twynUser").orNull
                     ?: System.getenv("TWYN_MAVEN_USER")

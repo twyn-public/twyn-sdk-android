@@ -18,7 +18,7 @@
 |---|---|
 | Coordinates | `com.t4isb:t4fastid:<version>` |
 | Format | Android Archive (`.aar`) + stripped native libs |
-| Registry | GitHub Packages (private) â€” `https://maven.pkg.github.com/twyn-internal/twyn-sdk-dist` |
+| Registry | GitHub Packages (private) â€” `https://maven.pkg.github.com/twyn-internal/twyn-android-sdk` |
 | Native ABIs | `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` |
 | minSdk / targetSdk | 24 / 36 |
 
@@ -36,7 +36,7 @@ dependencyResolutionManagement {
   repositories {
     google(); mavenCentral()
     maven {
-      url = uri("https://maven.pkg.github.com/twyn-internal/twyn-sdk-dist")
+      url = uri("https://maven.pkg.github.com/twyn-internal/twyn-android-sdk")
       credentials {
         username = providers.gradleProperty("twynUser").get()
         password = providers.gradleProperty("twynToken").get()
