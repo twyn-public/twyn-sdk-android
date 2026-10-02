@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Pulls the private SDK binary from GitHub Packages.
+      # Requires repo secrets: TWYN_MAVEN_USER / TWYN_MAVEN_TOKEN (read:packages).
+      - name: Build sample
+        env:
+          TWYN_MAVEN_USER: ${{ secrets.TWYN_MAVEN_USER }}
+          TWYN_MAVEN_TOKEN: ${{ secrets.TWYN_MAVEN_TOKEN }}
+        run: ./gradlew :sample:assembleDebug --no-daemon

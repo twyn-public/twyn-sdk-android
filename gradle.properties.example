@@ -1,0 +1,8 @@
+# Copy to gradle.properties and fill in. NEVER commit gradle.properties.
+#
+# GitHub username + a PAT with `read:packages` for the twyn org.
+twynUser=your-github-user
+twynToken=ghp_xxxxxxxxxxxxxxxxxxxx
+
+# Android SDK location (usually set by Android Studio / CI).
+# sdk.dir=/path/to/Android/sdk
