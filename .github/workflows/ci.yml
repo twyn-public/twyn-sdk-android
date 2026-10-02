@@ -41,6 +41,6 @@ jobs:
       # Fallback: a fine-grained PAT in the secret TWYN_MAVEN_TOKEN (read:packages).
       - name: Build sample
         env:
-          TWYN_MAVEN_USER: ${{ steps.app.outputs.token != '' && 'x-access-token' || 'x-access-token' }}
+          TWYN_MAVEN_USER: ${{ steps.app.outputs.token != '' && 'twyn-registry' || 'x-access-token' }}
           TWYN_MAVEN_TOKEN: ${{ steps.app.outputs.token || secrets.TWYN_MAVEN_TOKEN }}
         run: ./gradlew :sample:assembleDebug --no-daemon
