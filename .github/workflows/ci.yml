@@ -27,8 +27,9 @@ jobs:
           packages: "platform-tools"
 
       # GitHub Packages Maven requires a PAT (classic) — GitHub App installation
-      # tokens return 401 on maven.pkg.github.com. Use a dedicated machine account.
-      # See docs/registry-auth.md.
+      # tokens return 401 on maven.pkg.github.com. The token comes from the
+      # TWYN_MAVEN_USER / TWYN_MAVEN_TOKEN repo secrets (see the internal
+      # twyn-internal/twyn-sdk-dist docs).
       - name: Build sample
         env:
           TWYN_MAVEN_USER: ${{ secrets.TWYN_MAVEN_USER }}
