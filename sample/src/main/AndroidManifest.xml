@@ -12,7 +12,7 @@
         android:allowBackup="false"
         android:label="Twyn SDK Sample"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+        android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
         tools:replace="android:label,android:theme">
 
         <activity

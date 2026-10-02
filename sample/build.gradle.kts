@@ -34,7 +34,7 @@ android {
 
 dependencies {
     // The Twyn SDK binary (private registry — see settings.gradle.kts).
-    implementation("com.t4isb:t4fastid:1.0.6")
+    implementation("com.t4isb:t4fastid:1.0.7")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")

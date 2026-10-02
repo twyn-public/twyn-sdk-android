@@ -51,6 +51,18 @@ The SDK needs camera, network and (optionally) location:
 <uses-feature android:name="android.hardware.camera.front" android:required="true" />
 ```
 
+## 3.1 Theme (required)
+
+The SDK UI uses `com.google.android.material.button.MaterialButton`, so the host
+app's `application` must use a **Material Components** theme:
+
+```xml
+<application android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" ...>
+```
+
+An AppCompat-only theme causes `InflateException: Error inflating class
+com.google.android.material.button.MaterialButton`.
+
 ## 4. Register listeners
 
 The listeners live on the SDK's companion object and are invoked while the SDK

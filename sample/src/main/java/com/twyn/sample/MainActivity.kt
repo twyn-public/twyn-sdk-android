@@ -1,7 +1,10 @@
 package com.twyn.sample
 
 import android.os.Bundle
+import android.text.InputType
 import android.widget.Button
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -20,24 +23,41 @@ import com.t4isb.t4fastid.ui.T4FastID
  *   2. Build the launch Intent with [T4FastID.createIntent].
  *   3. startActivity(intent).
  *   4. Receive the result through the listeners below.
+ *
+ * Enter the `personId` and `sdkKey` provided by Twyn for your integration.
  */
 class MainActivity : AppCompatActivity(), EnrollListener, SDKStatusListener {
 
+    private lateinit var inPersonId: EditText
+    private lateinit var inSdkKey: EditText
     private lateinit var out: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val root = android.widget.LinearLayout(this).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             setPadding(48, 96, 48, 48)
         }
+
+        inPersonId = EditText(this).apply {
+            hint = "personId"
+            inputType = InputType.TYPE_CLASS_TEXT
+        }
+        inSdkKey = EditText(this).apply {
+            hint = "sdkKey"
+            inputType = InputType.TYPE_CLASS_TEXT
+        }
         out = TextView(this)
-        root.addView(out)
-        root.addView(Button(this).apply {
+        val btn = Button(this).apply {
             text = "Start enrollment"
             setOnClickListener { launchSdk() }
-        })
+        }
+
+        root.addView(inPersonId)
+        root.addView(inSdkKey)
+        root.addView(btn)
+        root.addView(out)
         setContentView(root)
 
         // 1) Register listeners once (they live on the SDK's companion object).
@@ -48,10 +68,13 @@ class MainActivity : AppCompatActivity(), EnrollListener, SDKStatusListener {
     }
 
     private fun launchSdk() {
-        // Replace with values provided by Twyn for your integration.
-        val sdkKey = "YOUR-SDK-KEY"
-        val personId = "12345678900"
-        val canal = "TWYN"
+        val personId = inPersonId.text.toString().trim()
+        val sdkKey = inSdkKey.text.toString().trim() // optional
+        if (personId.isEmpty()) {
+            Toast.makeText(this, "personId is required", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val canal = "SICTM"
         val env = "dev" // "dev" or "prod"
 
         // 2) Base intent from the SDK factory + optional extras.
@@ -68,9 +91,7 @@ class MainActivity : AppCompatActivity(), EnrollListener, SDKStatusListener {
     // ── EnrollListener ────────────────────────────────────────────────
 
     override fun onEnrollFaceCompleted(result: EnrollFaceResult?) {
-        val tcn = result?.tcn
-        val alive = result?.livenessStatus
-        out.text = "Liveness: $alive\nTCN: $tcn"
+        out.text = "Liveness: ${result?.livenessStatus}\nTCN: ${result?.tcn}"
         Toast.makeText(this, "Enrollment completed", Toast.LENGTH_SHORT).show()
     }
 
