@@ -8,9 +8,19 @@
 
 | Path | Purpose |
 |---|---|
-| `sample/` | Minimal Android app that launches the SDK and handles the callbacks |
+| `sample/` | Full integration demo: SDK options form, callback log, and an **APPROVED/REJECTED result dialog** |
 | `docs/integration.md` | Step-by-step integration guide |
 | `.github/workflows/ci.yml` | Builds the sample against the released SDK binary |
+
+### What the sample app shows
+
+- **Parameters form:** `personId`, `canal`, `env` (dev/prod), language, `requestSteps`,
+  `sdkKey` (optional), `tcn`/`tot` (optional).
+- **Launch** via `T4FastID.createIntent(...)` and the three listeners
+  (`EnrollListener`, `SDKStatusListener`, `BackendTransactionListener`).
+- **Result dialog:** reads the authoritative decision from the gateway audit API and
+  shows **APROVADO / REPROVADO / EM ANÁLISE** with liveness, risk, Sentinel and reason codes.
+- **Callback log** + captured face preview.
 
 ## SDK artifact
 
