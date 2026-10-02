@@ -1,79 +1,54 @@
 # Registry authentication
 
 The SDK binaries live in the **private** org `twyn-internal` (GitHub Packages).
-Consumers (the public sample, the demo, CI) need a token with `read:packages`
+Consumers (the public sample, the demo, CI) need a credential with `read:packages`
 that can reach `twyn-internal`.
 
-Two options. **GitHub App is recommended** (ephemeral tokens, not tied to a person,
-revocable, least privilege). A fine-grained PAT is the quick alternative.
+## ⚠️ Important: GitHub Packages Maven requires a **classic PAT**
 
----
+GitHub's own docs state: *"GitHub Packages only supports authentication using a
+personal access token (classic)."* In practice:
 
-## Option A — GitHub App (recommended)
-
-### 1. Create the App
-`twyn-internal` → **Settings → Developer settings → GitHub Apps → New GitHub App`
-
-| Field | Value |
+| Credential | Maven on GitHub Packages |
 |---|---|
-| Name | `twyn-registry` |
-| Homepage URL | `https://twyn.me` |
-| Webhook | uncheck "Active" |
-| Repository permissions → **Packages** | **Read-only** |
-| (Metadata) | Read-only (mandatory) |
-| Where can this App be installed | **Any account** |
+| **PAT (classic)** with `read:packages` | ✅ works |
+| Fine-grained PAT | ⚠️ not supported for Maven (use classic) |
+| **GitHub App** installation token | ❌ **401 Unauthorized** |
+| `GITHUB_TOKEN` | ✅ only for packages in the **same** repo/org |
 
-Create it, then note the **App ID**.
+We tried a dedicated **GitHub App** (`twyn-registry`, `Packages: read`) — the token
+is minted fine, but `maven.pkg.github.com` returns **401**. So the App cannot be
+used for the Maven registry. (It can still be useful for the API or other
+registries.)
 
-### 2. Generate a private key
-On the App page → **Generate a private key** → download the `.pem`.
-
-### 3. Install the App
-App page → **Install App** → install on **`twyn-internal`** (where the packages
-are). Installing on `twyn-public` is optional.
-
-### 4. Set the credentials on the consumer repos
-For each consumer repo (`twyn-public/twyn-sdk-android`, `twyn-internal/twyn-demo-android`):
-
-```bash
-gh variable set TWYN_APP_ID --repo <owner>/<repo> --body "<APP_ID>"
-gh secret  set TWYN_APP_PRIVATE_KEY --repo <owner>/<repo> < path/to/app.pem
-```
-
-The workflow mints a short-lived installation token via
-`actions/create-github-app-token` and uses it as the Maven password. Nothing
-long-lived is stored.
+**Therefore the consumer credential must be a classic PAT.** Prefer a **dedicated
+machine account** so it is not tied to a person.
 
 ---
 
-## Option B — fine-grained PAT
+## Recommended: dedicated machine account + classic PAT
 
-1. Create a **fine-grained token** (Settings → Developer settings → Personal access
-   tokens → Fine-grained).
-2. Resource owner: **`twyn-internal`**.
-3. Repository access: **Only select repositories → `twyn-android-sdk`**.
-4. Permissions: **Packages → Read**.
-5. Set it as the secret (replaces the App):
+1. Create a GitHub **machine account** (e.g. `twyn-ci`), add it to `twyn-internal`.
+2. Sign in as it → **Settings → Developer settings → Personal access tokens →
+   Tokens (classic)** → Generate new token.
+   - Scope: **`read:packages`** only.
+   - (If it must also read private repos: add `repo`.)
+3. Set the credentials on each consumer repo:
 
 ```bash
+gh secret set TWYN_MAVEN_USER  --repo <owner>/<repo> --body "twyn-ci"
 gh secret set TWYN_MAVEN_TOKEN --repo <owner>/<repo> < token.txt
 ```
 
-Prefer a **machine account** (e.g. `twyn-ci`) over a personal account so the
-credential survives staff changes.
+The workflow passes them as the Maven username/password:
 
----
+```yaml
+env:
+  TWYN_MAVEN_USER: ${{ secrets.TWYN_MAVEN_USER }}
+  TWYN_MAVEN_TOKEN: ${{ secrets.TWYN_MAVEN_TOKEN }}
+```
 
-## How the workflow uses it
-
-`twyn-sdk-android/.github/workflows/ci.yml`:
-
-1. If `TWYN_APP_ID` (repo variable) is set → mint an App installation token.
-2. Otherwise → fall back to the `TWYN_MAVEN_TOKEN` secret.
-3. Pass it as the Maven password (`TWYN_MAVEN_TOKEN`) with username
-   `x-access-token`.
-
-The registry URL in `settings.gradle.kts`:
+Registry URL (`settings.gradle.kts` / `build.gradle`):
 
 ```
 https://maven.pkg.github.com/twyn-internal/twyn-android-sdk
@@ -81,10 +56,24 @@ https://maven.pkg.github.com/twyn-internal/twyn-android-sdk
 
 ---
 
+## Alternative: move the registry to a service with OIDC
+
+If a long-lived PAT is unacceptable, host the Maven artifacts on a registry that
+supports short-lived/oidc credentials and use GitHub Actions **OIDC**:
+
+- **AWS CodeArtifact** (you already run on AWS) — GitHub OIDC → assume an IAM role
+  → `aws codeartifact get-authorization-token`. No stored secret.
+- Azure Artifacts / Cloudsmith / JFrog — similar.
+
+This is the most secure long-term option but requires moving publishing and the
+consumer configuration.
+
+---
+
 ## Security notes
 
-- **Never** commit tokens. Use repo/org secrets or, better, the App.
-- The App needs only **Packages: Read** — nothing else.
-- Rotate immediately if a token leaks (see `SECURITY.md`); push protection is on.
+- **Never** commit tokens. Use repo/org secrets.
+- Use a **machine account**, not a person, so the credential survives staff changes.
+- Rotate immediately if a token leaks (`SECURITY.md`); push protection is on.
 - The publishing side (`twyn-internal/twyn-android-sdk`) uses the ephemeral
   `GITHUB_TOKEN` with `packages: write` — no stored credential.
