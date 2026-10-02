@@ -14,6 +14,9 @@
 
 ### What the sample app shows
 
+- **Endpoints (configure for your deployment):** *Gateway base URL* (audit/decision) and
+  *Sentinel base URL* (device integrity). Defaults are **placeholders**
+  (`https://your-gateway.example.com`) — set them to your own.
 - **Parameters form:** `personId`, `canal`, `env` (dev/prod), language, `requestSteps`,
   `sdkKey` (optional), `tcn`/`tot` (optional).
 - **Launch** via `T4FastID.createIntent(...)` and the three listeners
